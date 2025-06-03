@@ -1,35 +1,27 @@
 DROP EXTENSION IF EXISTS pg_mooncake CASCADE;
 CREATE extension pg_mooncake;
-CREATE FUNCTION call_mooncake_on_create() RETURNS event_trigger AS $$
+
+CREATE OR REPLACE FUNCTION create_all_columnar_tables(target_schema TEXT DEFAULT 'public')
+RETURNS void AS $$
 DECLARE
-  cmd record;
-  tbl_name text;
-  schema_name text;
-  full_name text;
-  cs_table_name text;
+    rec RECORD;
+    row_table TEXT;
+    col_table TEXT;
 BEGIN
-  FOR cmd IN SELECT * FROM pg_event_trigger_ddl_commands()
-  LOOP
-    IF cmd.command_tag = 'CREATE TABLE' THEN
-      -- Parse 'schema.table' into schema and table names
-      full_name := cmd.object_identity;
-      schema_name := split_part(full_name, '.', 1);
-      tbl_name := split_part(full_name, '.', 2);
-
-      -- Skip tables starting with 'CS'
-      IF tbl_name LIKE 'Mooncake_CS_%' THEN
-        CONTINUE;
-      END IF;
-
-      -- Build CS table name and call procedure
-      cs_table_name := format('Mooncake_CS_%s', tbl_name);
-      CALL create_mooncake_table(cs_table_name, tbl_name);
-    END IF;
-  END LOOP;
+    FOR rec IN
+        SELECT table_schema, table_name
+        FROM information_schema.tables
+        WHERE table_schema = target_schema
+          AND table_type = 'BASE TABLE'
+    LOOP
+        row_table := format('%I.%I', rec.table_schema, rec.table_name);
+        col_table := format('Mooncake_CS_%s', rec.table_name);
+        BEGIN
+            CALL create_mooncake_table(col_table, row_table);
+        EXCEPTION WHEN OTHERS THEN
+            -- Do nothing
+            NULL;
+        END;
+    END LOOP;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE EVENT TRIGGER mooncake_create_hook
-  ON ddl_command_end
-  WHEN TAG IN ('CREATE TABLE')
-  EXECUTE FUNCTION call_mooncake_on_create();

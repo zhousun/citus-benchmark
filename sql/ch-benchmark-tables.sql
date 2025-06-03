@@ -10190,6 +10190,3 @@ ALTER TABLE ONLY public.supplier
 --
 -- PostgreSQL database dump complete
 --
-
-CALL create_mooncake_table('');
-CALL
