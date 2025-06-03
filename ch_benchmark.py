@@ -19,16 +19,16 @@ select   ol_number,
      avg(ol_quantity) as avg_qty,
      avg(ol_amount) as avg_amount,
      count(*) as count_order
-from     Mooncake_CS_order_line
+from     mooncake_cs_order_line
 group by ol_number order by ol_number LIMIT 10;
     """,
 """
 -- Q2
 select      su_suppkey, su_name, n_name, i_id, i_name, su_address, su_phone, su_comment
-from     Mooncake_CS_item, Mooncake_CS_supplier, Mooncake_CS_stock, Mooncake_CS_nation, Mooncake_CS_region,
+from     mooncake_cs_item, mooncake_cs_supplier, mooncake_cs_stock, mooncake_cs_nation, mooncake_cs_region,
      (select s_i_id as m_i_id,
          min(s_quantity) as m_s_quantity
-     from     Mooncake_CS_stock, Mooncake_CS_supplier, Mooncake_CS_nation, Mooncake_CS_region
+     from     mooncake_cs_stock, mooncake_cs_supplier, mooncake_cs_nation, mooncake_cs_region
      where     mod((s_w_id*s_i_id),10000)=su_suppkey
           and su_nationkey=n_nationkey
           and n_regionkey=r_regionkey
@@ -48,7 +48,7 @@ order by n_name, su_name, i_id LIMIT 10;
 -- Q3
 select   ol_o_id, ol_w_id, ol_d_id,
      sum(ol_amount) as revenue, o_entry_d
-from      Mooncake_CS_customer, Mooncake_CS_new_order, Mooncake_CS_orders, Mooncake_CS_order_line
+from      mooncake_cs_customer, mooncake_cs_new_order, mooncake_cs_orders, mooncake_cs_order_line
 where      c_state like 'A%'
      and c_id = o_c_id
      and c_w_id = o_w_id
@@ -65,9 +65,9 @@ order by revenue desc, o_entry_d LIMIT 10;
 """
 -- Q4
 select    o_ol_cnt, count(*) as order_count
-from    Mooncake_CS_orders
+from    mooncake_cs_orders
     where exists (select *
-            from Mooncake_CS_order_line
+            from mooncake_cs_order_line
             where o_id = ol_o_id
             and o_w_id = ol_w_id
             and o_d_id = ol_d_id
@@ -79,7 +79,7 @@ order    by o_ol_cnt LIMIT 10;
 -- Q5
 select     n_name,
      sum(ol_amount) as revenue
-from     Mooncake_CS_customer, Mooncake_CS_orders, Mooncake_CS_order_line, Mooncake_CS_stock, Mooncake_CS_supplier, Mooncake_CS_nation, Mooncake_CS_region
+from     mooncake_cs_customer, mooncake_cs_orders, mooncake_cs_order_line, mooncake_cs_stock, mooncake_cs_supplier, mooncake_cs_nation, mooncake_cs_region
 where     c_id = o_c_id
      and c_w_id = o_w_id
      and c_d_id = o_d_id
@@ -100,7 +100,7 @@ order by revenue desc LIMIT 10;
 """
 -- Q6
 select    sum(ol_amount) as revenue
-from Mooncake_CS_order_line
+from mooncake_cs_order_line
 where ol_quantity between 1 and 100000 LIMIT 10;
 """,
 """
@@ -109,7 +109,7 @@ select     su_nationkey as supp_nation,
      substr(c_state,1,1) as cust_nation,
      extract(year from o_entry_d) as l_year,
      sum(ol_amount) as revenue
-from     Mooncake_CS_supplier, Mooncake_CS_stock, Mooncake_CS_order_line, Mooncake_CS_orders, Mooncake_CS_customer, Mooncake_CS_nation n1, Mooncake_CS_nation n2
+from     mooncake_cs_supplier, mooncake_cs_stock, mooncake_cs_order_line, mooncake_cs_orders, mooncake_cs_customer, mooncake_cs_nation n1, mooncake_cs_nation n2
 where     ol_supply_w_id = s_w_id
      and ol_i_id = s_i_id
      and mod((s_w_id * s_i_id), 10000) = su_suppkey
@@ -133,7 +133,7 @@ order by su_nationkey, cust_nation, l_year LIMIT 10;
 -- Q8
 select     extract(year from o_entry_d) as l_year,
      sum(case when n2.n_name = 'Germany' then ol_amount else 0 end) / sum(ol_amount) as mkt_share
-from     Mooncake_CS_item, Mooncake_CS_supplier, Mooncake_CS_stock, Mooncake_CS_order_line, Mooncake_CS_orders, Mooncake_CS_customer, Mooncake_CS_nation n1, Mooncake_CS_nation n2, Mooncake_CS_region
+from     mooncake_cs_item, mooncake_cs_supplier, mooncake_cs_stock, mooncake_cs_order_line, mooncake_cs_orders, mooncake_cs_customer, mooncake_cs_nation n1, mooncake_cs_nation n2, mooncake_cs_region
 where     i_id = s_i_id
      and ol_i_id = s_i_id
      and ol_supply_w_id = s_w_id
@@ -157,7 +157,7 @@ order by l_year LIMIT 10;
 """
 -- Q9
 select     n_name, extract(year from o_entry_d) as l_year, sum(ol_amount) as sum_profit
-from     Mooncake_CS_item, Mooncake_CS_stock, Mooncake_CS_supplier, Mooncake_CS_order_line, Mooncake_CS_orders, Mooncake_CS_nation
+from     mooncake_cs_item, mooncake_cs_stock, mooncake_cs_supplier, mooncake_cs_order_line, mooncake_cs_orders, mooncake_cs_nation
 where     ol_i_id = s_i_id
      and ol_supply_w_id = s_w_id
      and mod((s_w_id * s_i_id), 10000) = su_suppkey
@@ -173,7 +173,7 @@ order by n_name, l_year desc LIMIT 10;
 """
 -- Q10
 select     c_id, c_last, sum(ol_amount) as revenue, c_city, c_phone, n_name
-from     Mooncake_CS_customer, Mooncake_CS_orders, Mooncake_CS_order_line, Mooncake_CS_nation
+from     mooncake_cs_customer, mooncake_cs_orders, mooncake_cs_order_line, mooncake_cs_nation
 where     c_id = o_c_id
      and c_w_id = o_w_id
      and c_d_id = o_d_id
@@ -188,14 +188,14 @@ order by revenue desc LIMIT 10;
 """
 -- Q11
 select     s_i_id, sum(s_order_cnt) as ordercount
-from     Mooncake_CS_stock, Mooncake_CS_supplier, Mooncake_CS_nation
+from     mooncake_cs_stock, mooncake_cs_supplier, mooncake_cs_nation
 where     mod((s_w_id * s_i_id),10000) = su_suppkey
      and su_nationkey = n_nationkey
      and n_name = 'Germany'
 group by s_i_id
 having   sum(s_order_cnt) >
         (select sum(s_order_cnt) * .005
-        from Mooncake_CS_stock, Mooncake_CS_supplier, Mooncake_CS_nation
+        from mooncake_cs_stock, mooncake_cs_supplier, mooncake_cs_nation
         where mod((s_w_id * s_i_id),10000) = su_suppkey
         and su_nationkey = n_nationkey
         and n_name = 'Germany')
@@ -206,7 +206,7 @@ order by ordercount desc LIMIT 10;
 select     o_ol_cnt,
      sum(case when o_carrier_id = 1 or o_carrier_id = 2 then 1 else 0 end) as high_line_count,
      sum(case when o_carrier_id <> 1 and o_carrier_id <> 2 then 1 else 0 end) as low_line_count
-from     Mooncake_CS_orders, Mooncake_CS_order_line
+from     mooncake_cs_orders, mooncake_cs_order_line
 where     ol_w_id = o_w_id
      and ol_d_id = o_d_id
      and ol_o_id = o_id
@@ -218,7 +218,7 @@ order by o_ol_cnt LIMIT 10;
 -- Q13
 select     c_count, count(*) as custdist
 from     (select c_id, count(o_id)
-     from Mooncake_CS_customer left outer join Mooncake_CS_orders on (
+     from mooncake_cs_customer left outer join mooncake_cs_orders on (
         c_w_id = o_w_id
         and c_d_id = o_d_id
         and c_id = o_c_id
@@ -230,7 +230,7 @@ order by custdist desc, c_count desc LIMIT 10;
 """
 -- Q14
 select    100.00 * sum(case when i_data like 'PR%' then ol_amount else 0 end) / (1+sum(ol_amount)) as promo_revenue
-from Mooncake_CS_order_line, Mooncake_CS_item
+from mooncake_cs_order_line, mooncake_cs_item
 where ol_i_id = i_id
     LIMIT 10;
 """,
@@ -239,11 +239,11 @@ where ol_i_id = i_id
 with     revenue (supplier_no, total_revenue) as (
      select mod((s_w_id * s_i_id),10000) as supplier_no,
         sum(ol_amount) as total_revenue
-     from Mooncake_CS_order_line, Mooncake_CS_stock
+     from mooncake_cs_order_line, mooncake_cs_stock
         where ol_i_id = s_i_id and ol_supply_w_id = s_w_id
      group by mod((s_w_id * s_i_id),10000))
 select     su_suppkey, su_name, su_address, su_phone, total_revenue
-from     Mooncake_CS_supplier, revenue
+from     mooncake_cs_supplier, revenue
 where     su_suppkey = supplier_no
      and total_revenue = (select max(total_revenue) from revenue)
 order by su_suppkey LIMIT 10;
@@ -254,12 +254,12 @@ select     i_name,
      substr(i_data, 1, 3) as brand,
      i_price,
      count(distinct (mod((s_w_id * s_i_id),10000))) as supplier_cnt
-from     Mooncake_CS_stock, Mooncake_CS_item
+from     mooncake_cs_stock, mooncake_cs_item
 where     i_id = s_i_id
      and i_data not like 'zz%'
      and (mod((s_w_id * s_i_id),10000) not in
         (select su_suppkey
-         from Mooncake_CS_supplier
+         from mooncake_cs_supplier
          where su_comment like '%bad%'))
 group by i_name, substr(i_data, 1, 3), i_price
 order by supplier_cnt desc LIMIT 10;
@@ -267,8 +267,8 @@ order by supplier_cnt desc LIMIT 10;
 """
 -- Q17
 select    sum(ol_amount) / 2.0 as avg_yearly
-from Mooncake_CS_order_line, (select   i_id, avg(ol_quantity) as a
-            from     Mooncake_CS_item, Mooncake_CS_order_line
+from mooncake_cs_order_line, (select   i_id, avg(ol_quantity) as a
+            from     mooncake_cs_item, mooncake_cs_order_line
             where    i_data like '%b'
                  and ol_i_id = i_id
             group by i_id) t
@@ -278,7 +278,7 @@ where ol_i_id = t.i_id
 """
 -- Q18
 select     c_last, c_id o_id, o_entry_d, o_ol_cnt, sum(ol_amount)
-from     Mooncake_CS_customer, Mooncake_CS_orders, Mooncake_CS_order_line
+from     mooncake_cs_customer, mooncake_cs_orders, mooncake_cs_order_line
 where     c_id = o_c_id
      and c_w_id = o_w_id
      and c_d_id = o_d_id
@@ -292,7 +292,7 @@ order by sum(ol_amount) desc, o_entry_d LIMIT 10;
 """
 -- Q19
 select    sum(ol_amount) as revenue
-from Mooncake_CS_order_line, Mooncake_CS_item
+from mooncake_cs_order_line, mooncake_cs_item
 where    (
       ol_i_id = i_id
           and i_data like '%a'
@@ -319,13 +319,13 @@ where    (
 """
 -- Q20
 select   su_name, su_address
-from     Mooncake_CS_supplier, Mooncake_CS_nation
+from     mooncake_cs_supplier, mooncake_cs_nation
 where    su_suppkey in
         (select  mod(s_i_id * s_w_id, 10000)
-        from     Mooncake_CS_stock, Mooncake_CS_order_line
+        from     mooncake_cs_stock, mooncake_cs_order_line
         where    s_i_id in
                 (select i_id
-                 from Mooncake_CS_item
+                 from mooncake_cs_item
                  where i_data like 'co%')
              and ol_i_id=s_i_id
         group by s_i_id, s_w_id, s_quantity
@@ -337,7 +337,7 @@ order by su_name LIMIT 10;
 """
 -- Q21
 select     su_name, count(*) as numwait
-from     Mooncake_CS_supplier, Mooncake_CS_order_line l1, Mooncake_CS_orders, Mooncake_CS_stock, Mooncake_CS_nation
+from     mooncake_cs_supplier, mooncake_cs_order_line l1, mooncake_cs_orders, mooncake_cs_stock, mooncake_cs_nation
 where     ol_o_id = o_id
      and ol_w_id = o_w_id
      and ol_d_id = o_d_id
@@ -346,7 +346,7 @@ where     ol_o_id = o_id
      and mod((s_w_id * s_i_id),10000) = su_suppkey
      and l1.ol_delivery_d > o_entry_d
      and not exists (select *
-             from Mooncake_CS_order_line l2
+             from mooncake_cs_order_line l2
              where  l2.ol_o_id = l1.ol_o_id
                 and l2.ol_w_id = l1.ol_w_id
                 and l2.ol_d_id = l1.ol_d_id
@@ -361,14 +361,14 @@ order by numwait desc, su_name LIMIT 10;
 select     substr(c_state,1,1) as country,
      count(*) as numcust,
      sum(c_balance) as totacctbal
-from     Mooncake_CS_customer
+from     mooncake_cs_customer
 where     substr(c_phone,1,1) in ('1','2','3','4','5','6','7')
      and c_balance > (select avg(c_BALANCE)
-              from      Mooncake_CS_customer
+              from      mooncake_cs_customer
               where  c_balance > 0.00
                   and substr(c_phone,1,1) in ('1','2','3','4','5','6','7'))
      and not exists (select *
-             from    Mooncake_CS_orders
+             from    mooncake_cs_orders
              where    o_c_id = c_id
                      and o_w_id = c_w_id
                     and o_d_id = c_d_id)
