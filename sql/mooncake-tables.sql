@@ -14,9 +14,9 @@ BEGIN
         WHERE table_schema = target_schema
           AND table_type = 'BASE TABLE'
     LOOP
-        col_table := format('Mooncake_CS_%s', rec.table_name);
+        col_table := format('mooncake_cs_%s', rec.table_name);
         BEGIN
-            CALL create_mooncake_table(col_table, rec.table_name);
+            CALL mooncake.create_table(col_table, rec.table_name);
         EXCEPTION WHEN OTHERS THEN
             -- Do nothing
             NULL;
